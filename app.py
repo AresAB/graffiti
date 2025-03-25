@@ -1,20 +1,18 @@
-from tkinter import *
+from pynput import keyboard as kb
+from app_window import AppWindow
 
-window = Tk()
+def on_press(key):
+    if key == kb.KeyCode.from_char('s'):
+        return False
+    if key == kb.KeyCode.from_char('x'):
+        global is_running
+        is_running = False
+        return False
 
-window.title("Graffiti")
-window.geometry(f"{window.winfo_screenwidth()}x{window.winfo_screenheight()}")
-
-window.overrideredirect(True) # this removes window frame
-window.attributes("-topmost", True)
-window.configure(bg="#add123")
-window.attributes("-transparentcolor", "#add123")
-
-lbl = Label(text = "test", bg = "red", height = 30, width = 20)
-lbl.pack(side = TOP)
-
-def x_pressed(event):
-    window.destroy()
-window.bind("<x>", x_pressed)
-
-window.mainloop()
+is_running = True
+while is_running:
+    window = AppWindow()
+    with kb.Listener(on_press = on_press) as listener:
+        listener.join()
+    if is_running:
+        window.run()
