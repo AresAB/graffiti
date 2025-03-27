@@ -14,11 +14,14 @@ class AppWindow:
         self.root.configure(bg="#add123")
         self.root.attributes("-transparentcolor", "#add123")
 
-        lbl = Label(self.root, text = "test", bg = "red", height = 30, width = 20)
-        lbl.pack()
+        #lbl = Label(self.root, text = "test", bg = "red", height = 30, width = 20)
+        #lbl.pack()
 
-        self.canvas = Canvas(self.root, width = 800, height = 800,
+        self.canvas = Canvas(self.root, 
+                             width = self.root.winfo_screenwidth(), 
+                             height = self.root.winfo_screenheight(),
                              bg = "#add123")
+
         self.rad = 3
         self.col = "#000fff000"
 
@@ -44,3 +47,8 @@ class AppWindow:
         self.canvas.create_oval(x - self.rad, y - self.rad,
                                 x + self.rad, y + self.rad,
                                 fill = self.col, outline="")
+
+    def clear(self):
+        #self.canvas.delete(self.canvas.find_all())
+        for item in self.canvas.find_all():
+            self.canvas.delete(item)

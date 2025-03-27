@@ -4,19 +4,20 @@ from app_window import AppWindow
 
 is_drawing = False
 
-#--- error is caused by calling tk object in other threads ---#
-
 def on_press(key):
     if key == kb.KeyCode.from_char('x'):
         mouse_listener.stop()
         window.destroy()
         return False
+    if key == kb.KeyCode.from_char('c'):
+        window.clear()
 
 def on_click(x, y, button, pressed):
     global is_drawing
     if button == mouse.Button.left:
         is_drawing = not is_drawing
         window.paint(x, y)
+        key_listener.suppress_event()
 
 def on_move(x, y):
     global is_drawing
