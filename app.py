@@ -1,18 +1,36 @@
 from pynput import keyboard as kb
+from pynput import mouse
 from app_window import AppWindow
 
+is_drawing = False
+
+#--- error is caused by calling tk object in other threads ---#
+
 def on_press(key):
-    if key == kb.KeyCode.from_char('s'):
-        return False
     if key == kb.KeyCode.from_char('x'):
-        global is_running
-        is_running = False
+        mouse_listener.stop()
+        window.destroy()
         return False
 
-is_running = True
-while is_running:
-    window = AppWindow()
-    with kb.Listener(on_press = on_press) as listener:
-        listener.join()
-    if is_running:
-        window.run()
+def on_click(x, y, button, pressed):
+    global is_drawing
+    if button == mouse.Button.left:
+        is_drawing = not is_drawing
+        window.paint(x, y)
+
+def on_move(x, y):
+    global is_drawing
+    if is_drawing: window.paint(x, y)
+
+window = AppWindow()
+
+key_listener = kb.Listener(on_press = on_press)
+mouse_listener = mouse.Listener(on_move = on_move,
+                                on_click = on_click)
+key_listener.start()
+mouse_listener.start()
+
+window.mainloop()
+
+key_listener.join()
+mouse_listener.join()
