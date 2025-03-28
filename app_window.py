@@ -27,6 +27,8 @@ class AppWindow:
 
         self.canvas.pack()
 
+        self.hidden = False
+
     def mainloop(self):
         self.is_running = True
         self.inputloop()
@@ -49,6 +51,11 @@ class AppWindow:
                                 fill = self.col, outline="")
 
     def clear(self):
-        #self.canvas.delete(self.canvas.find_all())
         for item in self.canvas.find_all():
             self.canvas.delete(item)
+
+    def hide(self):
+        new_state = "normal" if self.hidden else "hidden"
+        for item in self.canvas.find_all():
+            self.canvas.itemconfig(item, state = new_state)
+        self.hidden = not self.hidden

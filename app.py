@@ -11,6 +11,8 @@ def on_press(key):
         return False
     if key == kb.KeyCode.from_char('c'):
         window.clear()
+    if key == kb.KeyCode.from_char('s'):
+        window.hide()
 
 def on_click(x, y, button, pressed):
     global is_drawing
