@@ -13,10 +13,15 @@ def on_press(key):
         window.clear()
     if key == kb.KeyCode.from_char('s'):
         window.hide()
+    if key == kb.KeyCode.from_char('z'):
+        window.undo()
+    if key == kb.KeyCode.from_char('y'):
+        window.redo()
 
 def on_click(x, y, button, pressed):
     global is_drawing
     if button == mouse.Button.left:
+        if pressed: window.update_tag(1)
         is_drawing = not is_drawing
         window.paint(x, y)
         key_listener.suppress_event()
