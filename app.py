@@ -5,7 +5,7 @@ from app_window import AppWindow
 is_drawing = False
 
 def on_press(key):
-    if key == kb.KeyCode.from_char('x'):
+    if key == kb.KeyCode.from_char('q'):
         mouse_listener.stop()
         window.destroy()
         return False
@@ -28,7 +28,7 @@ def on_click(x, y, button, pressed):
 
 def on_move(x, y):
     global is_drawing
-    if is_drawing: window.paint(x, y)
+    if is_drawing: window.paint_line(x, y)
 
 window = AppWindow()
 

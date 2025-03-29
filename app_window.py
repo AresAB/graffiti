@@ -23,13 +23,15 @@ class AppWindow:
                              bg = "#add123")
 
         self.rad = 3
-        self.col = "#000fff000"
+        self.col = "#ff1d0d"
 
         self.canvas.pack()
 
         self.hidden = False
         self.current_tag = "0"
         self.history = []
+        self.prev_x = 0
+        self.prev_y = 0
 
     def mainloop(self):
         self.is_running = True
@@ -58,6 +60,19 @@ class AppWindow:
                                 x + self.rad, y + self.rad,
                                 fill = self.col, outline="",
                                 tags = ("a" + self.current_tag))
+        self.prev_x = x
+        self.prev_y = y
+
+    def paint_line(self, abs_x, abs_y):
+        x = abs_x - self.canvas.winfo_rootx()
+        y = abs_y - self.canvas.winfo_rooty()
+
+        self.canvas.create_line(self.prev_x, self.prev_y, x, y,
+                                capstyle = "round",
+                                fill = self.col, width = self.rad * 2,
+                                tags = ("a" + self.current_tag))
+        self.prev_x = x
+        self.prev_y = y
 
     def clear(self):
         for item in self.canvas.find_all():
