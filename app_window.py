@@ -71,7 +71,7 @@ class AppWindow:
     def preview_draw(self, abs_x, abs_y):
         x = abs_x - self.canvas.winfo_rootx()
         y = abs_y - self.canvas.winfo_rooty()
-        self.canvas.itemconfig(self.hover, outline = "#ffffff")
+        self.canvas.itemconfig(self.hover, outline = self.col)
         self.canvas.coords(self.hover, x - self.rad, y - self.rad,
                            x + self.rad, y + self.rad,)
         self.canvas.tag_raise("ui")
