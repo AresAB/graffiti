@@ -33,6 +33,11 @@ class AppWindow:
         self.prev_x = 0
         self.prev_y = 0
 
+        self.hover = self.canvas.create_oval(0, 0, 
+                                             self.rad * 2, self.rad * 2,
+                                             outline = self.col,
+                                             tags = ("ui"))
+
     def mainloop(self):
         self.is_running = True
         self.inputloop()
@@ -63,6 +68,14 @@ class AppWindow:
         self.prev_x = x
         self.prev_y = y
 
+    def preview_draw(self, abs_x, abs_y):
+        x = abs_x - self.canvas.winfo_rootx()
+        y = abs_y - self.canvas.winfo_rooty()
+        self.canvas.itemconfig(self.hover, outline = "#ffffff")
+        self.canvas.coords(self.hover, x - self.rad, y - self.rad,
+                           x + self.rad, y + self.rad,)
+        self.canvas.tag_raise("ui")
+
     def paint_line(self, abs_x, abs_y):
         x = abs_x - self.canvas.winfo_rootx()
         y = abs_y - self.canvas.winfo_rooty()
@@ -75,7 +88,11 @@ class AppWindow:
         self.prev_y = y
 
     def clear(self):
-        for item in self.canvas.find_all():
+        self.canvas.tag_raise("ui")
+        items = self.canvas.find_all()
+        items = items[:len(items) - len(self.canvas.find_withtag("ui"))]
+
+        for item in items:
             self.canvas.delete(item)
         self.history.clear()
         self.current_tag = "0"
@@ -102,3 +119,12 @@ class AppWindow:
                 self.canvas.itemconfig(item, state = "normal")
             del self.history[-1]
             self.update_tag(1)
+
+    def update_pen(self, i):
+        self.rad = min(max(self.rad + i, 3), 30)
+
+        coords = self.canvas.coords(self.hover)
+        coords = [(coords[2] - coords[0]) / 2 + coords[0], 
+                  (coords[3] - coords[1]) / 2 + coords[1]]
+
+        self.preview_draw(coords[0], coords[1])

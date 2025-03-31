@@ -17,6 +17,10 @@ def on_press(key):
         window.undo()
     if key == kb.KeyCode.from_char('y'):
         window.redo()
+    if key == kb.KeyCode.from_char('j'):
+        window.update_pen(-3)
+    if key == kb.KeyCode.from_char('k'):
+        window.update_pen(3)
 
 def on_click(x, y, button, pressed):
     global is_drawing
@@ -24,13 +28,16 @@ def on_click(x, y, button, pressed):
         if pressed: window.update_tag(1)
         is_drawing = not is_drawing
         window.paint(x, y)
+        window.preview_draw(x, y)
         key_listener.suppress_event()
 
 def on_move(x, y):
     global is_drawing
     if is_drawing: window.paint_line(x, y)
+    window.preview_draw(x, y)
 
 window = AppWindow()
+controller = mouse.Controller()
 
 key_listener = kb.Listener(on_press = on_press)
 mouse_listener = mouse.Listener(on_move = on_move,
