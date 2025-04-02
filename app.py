@@ -14,20 +14,27 @@ is_drawing = False
 
 def on_press(key):
     if key == kb.KeyCode.from_char(key_binds["quit"]):
+        window.update_cheatsheet(0)
         mouse_listener.stop()
         window.destroy()
         return False
     if key == kb.KeyCode.from_char(key_binds["clear"]):
+        window.update_cheatsheet(1)
         window.clear()
     if key == kb.KeyCode.from_char(key_binds["hide"]):
+        window.update_cheatsheet(2)
         window.hide()
     if key == kb.KeyCode.from_char(key_binds["undo"]):
+        window.update_cheatsheet(3)
         window.undo()
     if key == kb.KeyCode.from_char(key_binds["redo"]):
+        window.update_cheatsheet(4)
         window.redo()
     if key == kb.KeyCode.from_char(key_binds["brush size -"]):
+        window.update_cheatsheet(5)
         window.update_pen(-3)
     if key == kb.KeyCode.from_char(key_binds["brush size +"]):
+        window.update_cheatsheet(6)
         window.update_pen(3)
 
 def on_click(x, y, button, pressed):
@@ -47,7 +54,7 @@ def on_move(x, y):
 def on_scroll(x, y, dx, dy):
     window.update_pen(dy / abs(dy))
 
-window = AppWindow()
+window = AppWindow(key_binds)
 controller = mouse.Controller()
 
 key_listener = kb.Listener(on_press = on_press)

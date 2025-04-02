@@ -1,7 +1,7 @@
 from tkinter import *
 
 class AppWindow:
-    def __init__(self):
+    def __init__(self, key_binds):
         self.is_running = False
 
         self.root = Tk()
@@ -13,9 +13,6 @@ class AppWindow:
         self.root.attributes("-topmost", True)
         self.root.configure(bg="#add123")
         self.root.attributes("-transparentcolor", "#add123")
-
-        #lbl = Label(self.root, text = "test", bg = "red", height = 30, width = 20)
-        #lbl.pack()
 
         self.canvas = Canvas(self.root, 
                              width = self.root.winfo_screenwidth(), 
@@ -37,6 +34,16 @@ class AppWindow:
                                              self.rad * 2, self.rad * 2,
                                              outline = self.col,
                                              tags = ("ui"))
+
+        self.cheatsheet = Listbox(self.canvas, height = len(key_binds) + 2,
+                                  bg = "#242424", fg = "#cccccc",
+                                  selectbackground = "#ed213c")
+        self.cheatsheet.insert(1, "")
+        for key in key_binds:
+            self.cheatsheet.insert(END, f"   {key_binds[key]} : {key}")
+
+        self.canvas.create_window(40, 40, window = self.cheatsheet,
+                                  anchor = "nw", tags = ("ui"))
 
     def mainloop(self):
         self.is_running = True
@@ -87,19 +94,20 @@ class AppWindow:
         self.prev_x = x
         self.prev_y = y
 
-    def clear(self):
+    def get_drawings(self):
         self.canvas.tag_raise("ui")
         items = self.canvas.find_all()
-        items = items[:len(items) - len(self.canvas.find_withtag("ui"))]
+        return items[:len(items) - len(self.canvas.find_withtag("ui"))]
 
-        for item in items:
+    def clear(self):
+        for item in self.get_drawings():
             self.canvas.delete(item)
         self.history.clear()
         self.current_tag = "0"
 
     def hide(self):
         new_state = "normal" if self.hidden else "hidden"
-        for item in self.canvas.find_all():
+        for item in self.get_drawings():
             self.canvas.itemconfig(item, state = new_state)
         self.hidden = not self.hidden
 
@@ -128,3 +136,7 @@ class AppWindow:
                   (coords[3] - coords[1]) / 2 + coords[1]]
 
         self.preview_draw(coords[0], coords[1])
+
+    def update_cheatsheet(self, i):
+        self.cheatsheet.selection_clear(0, END)
+        self.cheatsheet.select_set(i + 1)
