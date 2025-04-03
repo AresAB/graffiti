@@ -33,7 +33,7 @@ class AppWindow:
         self.hover = self.canvas.create_oval(0, 0, 
                                              self.rad * 2, self.rad * 2,
                                              outline = self.col,
-                                             tags = ("ui"))
+                                             tags = ("ui", "mouse"))
 
         self.cheatsheet = Listbox(self.canvas, height = len(key_binds) + 2,
                                   bg = "#242424", fg = "#cccccc",
@@ -43,7 +43,11 @@ class AppWindow:
             self.cheatsheet.insert(END, f"   {key_binds[key]} : {key}")
 
         self.canvas.create_window(40, 40, window = self.cheatsheet,
-                                  anchor = "nw", tags = ("ui"))
+                                  anchor = "nw", tags = ("ui", "cs"))
+
+        self.mouse_offset = [0, 0]
+        self.selected = 0
+
 
     def mainloop(self):
         self.is_running = True
@@ -140,3 +144,26 @@ class AppWindow:
     def update_cheatsheet(self, i):
         self.cheatsheet.selection_clear(0, END)
         self.cheatsheet.select_set(i + 1)
+
+    def find_widget(self, abs_x, abs_y):
+        x = abs_x - self.canvas.winfo_rootx()
+        y = abs_y - self.canvas.winfo_rooty()
+        self.canvas.tag_raise("ui")
+
+        top = self.canvas.find_overlapping(x-2, y-2, x+2, y+2)[-1]
+        
+        if self.canvas.gettags(top)[1] != "mouse":
+            self.mouse_offset = [self.canvas.coords(top)[0] - x,
+                                 self.canvas.coords(top)[1] - y]
+            self.selected = top
+            return ""
+        else:
+            return "mouse"
+
+    def drag_widget(self, abs_x, abs_y):
+        x = abs_x - self.canvas.winfo_rootx()
+        y = abs_y - self.canvas.winfo_rooty()
+        
+        self.canvas.coords(self.selected, x + self.mouse_offset[0],
+                           y + self.mouse_offset[1])
+

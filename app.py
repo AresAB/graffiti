@@ -11,6 +11,7 @@ key_binds = { "quit" : 'q',
               "brush size +" : 'k' }
 
 is_drawing = False
+is_dragging = False
 
 def on_press(key):
     if key == kb.KeyCode.from_char(key_binds["quit"]):
@@ -38,17 +39,24 @@ def on_press(key):
         window.update_pen(3)
 
 def on_click(x, y, button, pressed):
-    global is_drawing
+    global is_drawing, is_dragging
     if button == mouse.Button.left:
-        if pressed: window.update_tag(1)
-        is_drawing = not is_drawing
-        window.paint(x, y)
-        window.preview_draw(x, y)
+        if window.find_widget(x, y) == "mouse":
+            if pressed: 
+                window.update_tag(1)
+                is_drawing = True
+                window.paint(x, y)
+                window.preview_draw(x, y)
+            else: 
+                is_drawing = False
+        else:
+            is_dragging = not is_dragging
         key_listener.suppress_event()
 
 def on_move(x, y):
     global is_drawing
     if is_drawing: window.paint_line(x, y)
+    if is_dragging: window.drag_widget(x, y)
     window.preview_draw(x, y)
 
 def on_scroll(x, y, dx, dy):
