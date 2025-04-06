@@ -1,4 +1,5 @@
 from tkinter import *
+from color_tray import ColorTray
 
 class AppWindow:
     def __init__(self, key_binds):
@@ -36,17 +37,25 @@ class AppWindow:
                                              tags = ("ui", "mouse"))
 
         self.cheatsheet = Listbox(self.canvas, height = len(key_binds) + 2,
+                                  borderwidth = 3, relief = RIDGE,
                                   bg = "#242424", fg = "#cccccc",
                                   selectbackground = "#ed213c")
         self.cheatsheet.insert(1, "")
         for key in key_binds:
             self.cheatsheet.insert(END, f"   {key_binds[key]} : {key}")
 
-        self.canvas.create_window(40, 40, window = self.cheatsheet,
-                                  anchor = "nw", tags = ("ui", "cs"))
+        self.canvas.create_window(self.root.winfo_screenwidth() - 40, 40, 
+                                  window = self.cheatsheet,
+                                  anchor = "ne", tags = ("ui", "cs"))
 
         self.mouse_offset = [0, 0]
         self.selected = 0
+
+        self.col_tray = ColorTray(self)
+        self.canvas.create_window(self.root.winfo_screenwidth() - 40,
+                                  80 + 20 * len(key_binds), 
+                                  window = self.col_tray.get_widget(),
+                                  anchor = "ne", tags = ("ui", "ct"))
 
 
     def mainloop(self):
@@ -82,7 +91,6 @@ class AppWindow:
     def preview_draw(self, abs_x, abs_y):
         x = abs_x - self.canvas.winfo_rootx()
         y = abs_y - self.canvas.winfo_rooty()
-        self.canvas.itemconfig(self.hover, outline = self.col)
         self.canvas.coords(self.hover, x - self.rad, y - self.rad,
                            x + self.rad, y + self.rad,)
         self.canvas.tag_raise("ui")
@@ -150,9 +158,13 @@ class AppWindow:
         y = abs_y - self.canvas.winfo_rooty()
         self.canvas.tag_raise("ui")
 
-        top = self.canvas.find_overlapping(x-2, y-2, x+2, y+2)[-1]
+        stack = self.canvas.find_overlapping(x-2, y-2, x+2, y+2)
+        if len(stack) == 0:
+            return "mouse"
+
+        top = stack[-1]
         
-        if self.canvas.gettags(top)[1] != "mouse":
+        if self.canvas.gettags(top)[1] != "mouse" and self.canvas.gettags(top)[0] == "ui":
             self.mouse_offset = [self.canvas.coords(top)[0] - x,
                                  self.canvas.coords(top)[1] - y]
             self.selected = top
@@ -166,4 +178,8 @@ class AppWindow:
         
         self.canvas.coords(self.selected, x + self.mouse_offset[0],
                            y + self.mouse_offset[1])
+
+    def update_hsl(self, h_i, s_i, l_i):
+        self.col = self.col_tray.update_hsl(h_i, s_i, l_i)
+        self.canvas.itemconfig(self.hover, outline = self.col)
 

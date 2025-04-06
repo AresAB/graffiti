@@ -8,7 +8,14 @@ key_binds = { "quit" : 'q',
               "undo" : 'z',
               "redo" : 'y',
               "brush size -" : 'j',
-              "brush size +" : 'k' }
+              "brush size +" : 'k',
+              "hue +" : 'b',
+              "hue -" : 'i', 
+              "saturation +" : 'n',
+              "saturation -" : 'o',
+              "luminance +" : 'm',
+              "luminance -" : 'p' 
+             }
 
 is_drawing = False
 is_dragging = False
@@ -37,6 +44,18 @@ def on_press(key):
     if key == kb.KeyCode.from_char(key_binds["brush size +"]):
         window.update_cheatsheet(6)
         window.update_pen(3)
+    if key == kb.KeyCode.from_char(key_binds["hue +"]):
+        window.update_hsl(1, 0., 0.)
+    if key == kb.KeyCode.from_char(key_binds["hue -"]):
+        window.update_hsl(-1, 0., 0.)
+    if key == kb.KeyCode.from_char(key_binds["saturation +"]):
+        window.update_hsl(0, 0.01, 0.)
+    if key == kb.KeyCode.from_char(key_binds["saturation -"]):
+        window.update_hsl(0, -0.01, 0.)
+    if key == kb.KeyCode.from_char(key_binds["luminance +"]):
+        window.update_hsl(0, 0, 0.01)
+    if key == kb.KeyCode.from_char(key_binds["luminance -"]):
+        window.update_hsl(0, 0, -0.01)
 
 def on_click(x, y, button, pressed):
     global is_drawing, is_dragging
@@ -60,7 +79,7 @@ def on_move(x, y):
     window.preview_draw(x, y)
 
 def on_scroll(x, y, dx, dy):
-    window.update_pen(dy / abs(dy))
+    if dy != 0: window.update_pen(dy / abs(dy))
 
 window = AppWindow(key_binds)
 controller = mouse.Controller()
