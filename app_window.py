@@ -231,6 +231,14 @@ class AppWindow:
         self.canvas.coords(self.selected, x + self.mouse_offset[0],
                            y + self.mouse_offset[1])
 
+    def hide_ui(self, is_hidden):
+        if is_hidden:
+            self.canvas.itemconfig(self.hover, state = "normal")
+            self.root.attributes("-alpha", 1.)
+        else:
+            self.canvas.itemconfig(self.hover, state = "hidden")
+            self.root.attributes("-alpha", 0.5)
+
     def update_hsl(self, h_i, s_i, l_i):
         self.col = self.col_tray.update_hsl(h_i, s_i, l_i)
         self.canvas.itemconfig(self.hover, outline = self.col)

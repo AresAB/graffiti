@@ -5,7 +5,7 @@ from app_window import AppWindow
 key_binds = { "focus/unfocus" : 't',
               "quit" : 'q',
               "clear": 'c',
-              "hide" : 's',
+              "hide/unhide" : 's',
               "undo" : 'z',
               "redo" : 'y',
               "brush size -" : 'j',
@@ -28,6 +28,7 @@ def on_press(key):
     if key == kb.KeyCode.from_char(key_binds["focus/unfocus"]):
         window.update_cheatsheet(0)
         is_focused = not is_focused
+        window.hide_ui(is_focused)
     if is_focused:
         if key == kb.KeyCode.from_char(key_binds["quit"]):
             window.update_cheatsheet(1)
@@ -37,7 +38,7 @@ def on_press(key):
         if key == kb.KeyCode.from_char(key_binds["clear"]):
             window.update_cheatsheet(2)
             window.clear()
-        if key == kb.KeyCode.from_char(key_binds["hide"]):
+        if key == kb.KeyCode.from_char(key_binds["hide/unhide"]):
             window.update_cheatsheet(3)
             window.hide()
         if key == kb.KeyCode.from_char(key_binds["undo"]):
@@ -75,31 +76,33 @@ def on_press(key):
             window.eyedrop(controller.position[0], controller.position[1])
 
 def on_click(x, y, button, pressed):
-    global is_drawing, is_dragging, is_focused
+    global is_drawing, is_dragging
     if is_focused:
         if button == mouse.Button.left:
             top_widget = window.find_widget(x, y)
-            if top_widget == "mouse":
-                if pressed: 
-                    window.update_tag(1)
-                    is_drawing = True
-                    window.paint(x, y)
-                    window.preview_draw(x, y)
-                else: 
-                    is_drawing = False
-            elif top_widget == "tray" and pressed:
+            if not pressed:
+                is_drawing = False
+                is_dragging = False
+            elif top_widget == "mouse":
+                window.update_tag(1)
+                is_drawing = True
+                window.paint(x, y)
+                window.preview_draw(x, y)
+            elif top_widget == "tray":
                 window.paint_tray(x, y)
             else:
-                is_dragging = not is_dragging
+                is_dragging = True
         if button == mouse.Button.right:
             if pressed:
                 window.init_scrnshot(x, y)
             else:
                 window.take_scrnshot(x, y)
         key_listener.suppress_event()
+    else:
+        is_dragging = False
+        is_drawing = False
 
 def on_move(x, y):
-    global is_drawing, is_dragging
     if is_drawing: window.paint_line(x, y)
     if is_dragging: window.drag_widget(x, y)
     window.preview_draw(x, y)
