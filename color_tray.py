@@ -51,6 +51,18 @@ class ColorTray:
 
         return hex_code
 
+    def set_rgb(self, r, g, b):
+        self.rgb = [r, g, b]
+        self.hsl = rgb_to_hsl(self.rgb[0], self.rgb[1], self.rgb[2])
+
+        self.hue_l.config(text = f"hue: {self.hsl[0]} deg")
+        self.sat_l.config(text = f"saturation: {int(self.hsl[1] * 100)}%")
+        self.lum_l.config(text = f"luminance: {int(self.hsl[2] * 100)}%")
+
+        hex_code = rgb_to_hex(self.rgb[0], self.rgb[1], self.rgb[2])
+        self.col_display.config(bg = hex_code)
+
+        return hex_code
 
 def hex_to_rgb(hex_code):
     return [int(hex_code[1:3], 16), 

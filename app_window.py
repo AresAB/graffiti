@@ -181,6 +181,12 @@ class AppWindow:
         self.canvas.tag_raise("mouse")
         self.canvas.itemconfig(self.hover, state = "normal")
 
+    def eyedrop(self, x, y):
+        img = ImageGrab.grab()
+        r, g, b = img.getpixel((x, y))
+        self.col = self.col_tray.set_rgb(r, g, b)
+        self.canvas.itemconfig(self.hover, outline = self.col)
+
     def update_cheatsheet(self, i):
         self.cheatsheet.selection_clear(0, END)
         self.cheatsheet.select_set(i + 1)

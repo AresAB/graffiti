@@ -14,7 +14,8 @@ key_binds = { "quit" : 'q',
               "saturation +" : 'n',
               "saturation -" : 'o',
               "luminance +" : 'm',
-              "luminance -" : 'p'
+              "luminance -" : 'p',
+              "eyedropper" : 'e'
              }
 
 is_drawing = False
@@ -56,6 +57,8 @@ def on_press(key):
         window.update_hsl(0, 0, 0.01)
     if key == kb.KeyCode.from_char(key_binds["luminance -"]):
         window.update_hsl(0, 0, -0.01)
+    if key == kb.KeyCode.from_char(key_binds["eyedropper"]):
+        window.eyedrop(controller.position[0], controller.position[1])
 
 def on_click(x, y, button, pressed):
     global is_drawing, is_dragging
