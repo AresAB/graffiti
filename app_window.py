@@ -1,4 +1,5 @@
 from tkinter import *
+from PIL import ImageGrab, ImageTk, Image
 from color_tray import ColorTray
 
 class AppWindow:
@@ -56,6 +57,10 @@ class AppWindow:
                                   80 + 20 * len(key_binds), 
                                   window = self.col_tray.get_widget(),
                                   anchor = "ne", tags = ("ui", "ct"))
+
+        self.scrnshot_x = 0
+        self.scrnshot_y = 0
+        self.imgs = []
 
 
     def mainloop(self):
@@ -115,6 +120,7 @@ class AppWindow:
         for item in self.get_drawings():
             self.canvas.delete(item)
         self.history.clear()
+        self.imgs.clear()
         self.current_tag = "0"
 
     def hide(self):
@@ -149,6 +155,32 @@ class AppWindow:
 
         self.preview_draw(coords[0], coords[1])
 
+    def init_scrnshot(self, x, y):
+        if self.history:
+            for tag in self.history:
+                for item in self.canvas.find_withtag(tag):
+                    self.canvas.delete(item)
+            self.history.clear()
+
+        self.canvas.itemconfig(self.hover, state = "hidden")
+        self.scrnshot_x = x
+        self.scrnshot_y = y
+
+    def take_scrnshot(self, x, y):
+        x2 = x
+        y2 = y
+        if self.scrnshot_x > x2: (self.scrnshot_x, x2) = (x2, self.scrnshot_x)
+        if self.scrnshot_y > y2: (self.scrnshot_y, y2) = (y2, self.scrnshot_y)
+        img = ImageGrab.grab((self.scrnshot_x, self.scrnshot_y, x2, y2))
+        tk_img = ImageTk.PhotoImage(img)
+        self.imgs.append(tk_img)
+        self.canvas.create_image((self.scrnshot_x, self.scrnshot_y),
+                                 image = tk_img,
+                                 anchor = "nw",
+                                 tags = (f"{tk_img}"))
+        self.canvas.tag_raise("mouse")
+        self.canvas.itemconfig(self.hover, state = "normal")
+
     def update_cheatsheet(self, i):
         self.cheatsheet.selection_clear(0, END)
         self.cheatsheet.select_set(i + 1)
@@ -163,8 +195,11 @@ class AppWindow:
             return "mouse"
 
         top = stack[-1]
+        top_tags = self.canvas.gettags(top)
+        if top_tags[0] != "ui":
+            return "mouse"
         
-        if self.canvas.gettags(top)[1] != "mouse" and self.canvas.gettags(top)[0] == "ui":
+        if top_tags[1] != "mouse" and top_tags[0] == "ui":
             self.mouse_offset = [self.canvas.coords(top)[0] - x,
                                  self.canvas.coords(top)[1] - y]
             self.selected = top

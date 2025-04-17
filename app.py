@@ -14,7 +14,7 @@ key_binds = { "quit" : 'q',
               "saturation +" : 'n',
               "saturation -" : 'o',
               "luminance +" : 'm',
-              "luminance -" : 'p' 
+              "luminance -" : 'p'
              }
 
 is_drawing = False
@@ -70,7 +70,12 @@ def on_click(x, y, button, pressed):
                 is_drawing = False
         else:
             is_dragging = not is_dragging
-        key_listener.suppress_event()
+    if button == mouse.Button.right:
+        if pressed:
+            window.init_scrnshot(x, y)
+        else:
+            window.take_scrnshot(x, y)
+    key_listener.suppress_event()
 
 def on_move(x, y):
     global is_drawing
