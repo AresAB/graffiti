@@ -46,24 +46,32 @@ def on_press(key):
         window.update_cheatsheet(6)
         window.update_pen(3)
     if key == kb.KeyCode.from_char(key_binds["hue +"]):
+        window.update_cheatsheet(7)
         window.update_hsl(1, 0., 0.)
     if key == kb.KeyCode.from_char(key_binds["hue -"]):
+        window.update_cheatsheet(8)
         window.update_hsl(-1, 0., 0.)
     if key == kb.KeyCode.from_char(key_binds["saturation +"]):
+        window.update_cheatsheet(9)
         window.update_hsl(0, 0.01, 0.)
     if key == kb.KeyCode.from_char(key_binds["saturation -"]):
+        window.update_cheatsheet(10)
         window.update_hsl(0, -0.01, 0.)
     if key == kb.KeyCode.from_char(key_binds["luminance +"]):
+        window.update_cheatsheet(11)
         window.update_hsl(0, 0, 0.01)
     if key == kb.KeyCode.from_char(key_binds["luminance -"]):
+        window.update_cheatsheet(12)
         window.update_hsl(0, 0, -0.01)
     if key == kb.KeyCode.from_char(key_binds["eyedropper"]):
+        window.update_cheatsheet(13)
         window.eyedrop(controller.position[0], controller.position[1])
 
 def on_click(x, y, button, pressed):
     global is_drawing, is_dragging
     if button == mouse.Button.left:
-        if window.find_widget(x, y) == "mouse":
+        top_widget = window.find_widget(x, y)
+        if top_widget == "mouse":
             if pressed: 
                 window.update_tag(1)
                 is_drawing = True
@@ -71,6 +79,8 @@ def on_click(x, y, button, pressed):
                 window.preview_draw(x, y)
             else: 
                 is_drawing = False
+        elif top_widget == "tray" and pressed:
+            window.paint_tray(x, y)
         else:
             is_dragging = not is_dragging
     if button == mouse.Button.right:

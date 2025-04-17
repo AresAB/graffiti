@@ -27,9 +27,26 @@ class ColorTray:
                            bg = "#242424", fg = "#cccccc")
         self.lum_l.pack(fill = 'both')
 
+        self.canvas = Canvas(self.frame, width = 80, height = 120)
+        self.canvas.pack(fill = 'both')
+
+        self.rad = 5
+
 
     def get_widget(self):
         return self.frame
+
+    def overlapping_canvas(self, abs_y):
+        if abs_y > self.canvas.winfo_rooty():
+            return True
+        return False
+
+    def paint(self, abs_x, abs_y):
+        x = abs_x - self.canvas.winfo_rootx()
+        y = abs_y - self.canvas.winfo_rooty()
+        self.canvas.create_oval(x - self.rad, y - self.rad,
+                                x + self.rad, y + self.rad,
+                                fill = self.parent.col, outline="")
 
     def update_hsl(self, h_i, s_i, l_i):
         self.hsl[0] += h_i

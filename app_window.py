@@ -54,7 +54,7 @@ class AppWindow:
 
         self.col_tray = ColorTray(self)
         self.canvas.create_window(self.root.winfo_screenwidth() - 40,
-                                  80 + 20 * len(key_binds), 
+                                  60 + 20 * len(key_binds), 
                                   window = self.col_tray.get_widget(),
                                   anchor = "ne", tags = ("ui", "ct"))
 
@@ -92,6 +92,9 @@ class AppWindow:
                                 tags = ("a" + self.current_tag))
         self.prev_x = x
         self.prev_y = y
+
+    def paint_tray(self, abs_x, abs_y):
+        self.col_tray.paint(abs_x, abs_y)
 
     def preview_draw(self, abs_x, abs_y):
         x = abs_x - self.canvas.winfo_rootx()
@@ -205,6 +208,14 @@ class AppWindow:
         if top_tags[0] != "ui":
             return "mouse"
         
+        if top_tags[1] == "ct":
+            if self.col_tray.overlapping_canvas(abs_y):
+                return "tray"
+            else:
+                self.mouse_offset = [self.canvas.coords(top)[0] - x,
+                                 self.canvas.coords(top)[1] - y]
+                self.selected = top
+                return ""
         if top_tags[1] != "mouse" and top_tags[0] == "ui":
             self.mouse_offset = [self.canvas.coords(top)[0] - x,
                                  self.canvas.coords(top)[1] - y]
