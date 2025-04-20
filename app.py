@@ -6,30 +6,33 @@ key_binds = { "focus/unfocus" : 't',
               "quit" : 'q',
               "clear": 'c',
               "hide/unhide" : 's',
-              "undo" : 'z',
+              "undo" : 'u',
               "redo" : 'y',
               "brush size -" : 'j',
               "brush size +" : 'k',
-              "hue +" : 'b',
-              "hue -" : 'i', 
-              "saturation +" : 'n',
-              "saturation -" : 'o',
-              "luminance +" : 'm',
-              "luminance -" : 'p',
-              "eyedropper" : 'e'
+              "hue +/-" : 'b',
+              "saturation +/-" : 'n',
+              "luminance +/-" : 'm',
+              "eyedropper" : 'e',
+              "2nd mode" : 'shift'
              }
 
 is_drawing = False
 is_dragging = False
 is_focused = True
+is_alt_mode = False
 
 def on_press(key):
-    global is_focused
+    global is_focused, is_alt_mode
     if key == kb.KeyCode.from_char(key_binds["focus/unfocus"]):
         window.update_cheatsheet(0)
         is_focused = not is_focused
         window.hide_ui(is_focused)
     if is_focused:
+        if key == kb.Key.shift_l or key == kb.Key.shift_r:
+            window.update_cheatsheet(12)
+            is_alt_mode = not is_alt_mode
+            window.invert_cheatsheet(is_alt_mode)
         if key == kb.KeyCode.from_char(key_binds["quit"]):
             window.update_cheatsheet(1)
             mouse_listener.stop()
@@ -53,26 +56,20 @@ def on_press(key):
         if key == kb.KeyCode.from_char(key_binds["brush size +"]):
             window.update_cheatsheet(7)
             window.update_pen(3)
-        if key == kb.KeyCode.from_char(key_binds["hue +"]):
+        if key == kb.KeyCode.from_char(key_binds["hue +/-"]):
             window.update_cheatsheet(8)
-            window.update_hsl(1, 0., 0.)
-        if key == kb.KeyCode.from_char(key_binds["hue -"]):
+            if is_alt_mode: window.update_hsl(-1, 0., 0.)
+            else: window.update_hsl(1, 0., 0.)
+        if key == kb.KeyCode.from_char(key_binds["saturation +/-"]):
             window.update_cheatsheet(9)
-            window.update_hsl(-1, 0., 0.)
-        if key == kb.KeyCode.from_char(key_binds["saturation +"]):
+            if is_alt_mode: window.update_hsl(0, -0.01, 0.)
+            else: window.update_hsl(0, 0.01, 0.)
+        if key == kb.KeyCode.from_char(key_binds["luminance +/-"]):
             window.update_cheatsheet(10)
-            window.update_hsl(0, 0.01, 0.)
-        if key == kb.KeyCode.from_char(key_binds["saturation -"]):
-            window.update_cheatsheet(11)
-            window.update_hsl(0, -0.01, 0.)
-        if key == kb.KeyCode.from_char(key_binds["luminance +"]):
-            window.update_cheatsheet(12)
-            window.update_hsl(0, 0, 0.01)
-        if key == kb.KeyCode.from_char(key_binds["luminance -"]):
-            window.update_cheatsheet(13)
-            window.update_hsl(0, 0, -0.01)
+            if is_alt_mode: window.update_hsl(0, 0, -0.01)
+            else: window.update_hsl(0, 0, 0.01)
         if key == kb.KeyCode.from_char(key_binds["eyedropper"]):
-            window.update_cheatsheet(14)
+            window.update_cheatsheet(11)
             window.eyedrop(controller.position[0], controller.position[1])
 
 def on_click(x, y, button, pressed):

@@ -194,6 +194,16 @@ class AppWindow:
         self.cheatsheet.selection_clear(0, END)
         self.cheatsheet.select_set(i + 1)
 
+    def invert_cheatsheet(self, yes_invert):
+        if yes_invert: 
+            self.cheatsheet.configure(bg = "#ed213c",
+                                      fg = "#242424",
+                                      selectbackground = "#242424")
+        else:
+            self.cheatsheet.configure(bg = "#242424",
+                                      fg = "#cccccc",
+                                      selectbackground = "#ed213c")
+
     def find_widget(self, abs_x, abs_y):
         x = abs_x - self.canvas.winfo_rootx()
         y = abs_y - self.canvas.winfo_rooty()
