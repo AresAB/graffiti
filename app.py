@@ -67,8 +67,8 @@ def on_press(key):
             else: window.update_oklch(0, 0.01, 0.)
         if key == kb.KeyCode.from_char(key_binds["hue +/-"]):
             window.update_cheatsheet(10)
-            if is_alt_mode: window.update_oklch(0, 0, -0.5 * (math.pi / 180))
-            else: window.update_oklch(0, 0, 0.5 * (math.pi / 180))
+            if is_alt_mode: window.update_oklch(0, 0, -1 * (math.pi / 180))
+            else: window.update_oklch(0, 0, 1 * (math.pi / 180))
         if key == kb.KeyCode.from_char(key_binds["eyedropper"]):
             window.update_cheatsheet(11)
             window.eyedrop(controller.position[0], controller.position[1])

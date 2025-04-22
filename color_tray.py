@@ -25,7 +25,7 @@ class ColorTray:
         self.chroma_l.pack(fill = 'both')
 
         self.hue_l = Label(self.frame, 
-                           text = f"Hue: {int((self.oklch[2] + (math.pi / 2.)) * 2 * (180 / math.pi))} deg",
+                           text = f"Hue: {int(self.oklch[2] * (180 / math.pi))} deg",
                            bg = "#242424", fg = "#cccccc")
         self.hue_l.pack(fill = 'both')
 
@@ -56,12 +56,12 @@ class ColorTray:
         self.oklch[1] += c_i
         self.oklch[1] = min(max(self.oklch[1], 0), 1)
         self.oklch[2] += h_i
-        if self.oklch[2] > (math.pi / 2.): self.oklch[2] = -math.pi + self.oklch[2]
-        if self.oklch[2] < -(math.pi / 2.): self.oklch[2] = (math.pi / 2.) + self.oklch[2]
+        self.oklch[2] %= 361 * (math.pi / 180)
+        if self.oklch[2] < 0: self.oklch[2] = (math.pi * 2.) + self.oklch[2]
 
         self.lum_l.config(text = f"Luminance: {int(self.oklch[0] * 100)}%")
         self.chroma_l.config(text = f"Chroma: {int(self.oklch[1] * 100)}%")
-        self.hue_l.config(text = f"Hue: {int((self.oklch[2] + (math.pi / 2.)) * 2 * (180 / math.pi))} deg")
+        self.hue_l.config(text = f"Hue: {int(self.oklch[2] * (180 / math.pi))} deg")
 
         self.rgb = oklch_to_rgb(self.oklch[0], self.oklch[1], self.oklch[2])
 
@@ -73,10 +73,11 @@ class ColorTray:
     def set_rgb(self, r, g, b):
         self.rgb = [r, g, b]
         self.oklch = rgb_to_oklch(self.rgb[0], self.rgb[1], self.rgb[2])
+        if self.oklch[2] < 0: self.oklch[2] = (math.pi * 2.) + self.oklch[2]
 
         self.lum_l.config(text = f"Luminance: {int(self.oklch[0] * 100)}%")
         self.chroma_l.config(text = f"Chroma: {int(self.oklch[1] * 100)}%")
-        self.hue_l.config(text = f"Hue: {int((self.oklch[2] + (math.pi / 2.)) * 2 * (180 / math.pi))} deg")
+        self.hue_l.config(text = f"Hue: {int(self.oklch[2] * (180 / math.pi))} deg")
 
         hex_code = rgb_to_hex(self.rgb[0], self.rgb[1], self.rgb[2])
         self.col_display.config(bg = hex_code)
