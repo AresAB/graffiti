@@ -249,7 +249,7 @@ class AppWindow:
             self.canvas.itemconfig(self.hover, state = "hidden")
             self.root.attributes("-alpha", 0.5)
 
-    def update_hsl(self, h_i, s_i, l_i):
-        self.col = self.col_tray.update_hsl(h_i, s_i, l_i)
+    def update_oklch(self, l_i, c_i, h_i):
+        self.col = self.col_tray.update_oklch(l_i, c_i, h_i)
         self.canvas.itemconfig(self.hover, outline = self.col)
 

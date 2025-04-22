@@ -1,6 +1,7 @@
 from pynput import keyboard as kb
 from pynput import mouse
 from app_window import AppWindow
+import math
 
 key_binds = { "focus/unfocus" : 't',
               "quit" : 'q',
@@ -10,9 +11,9 @@ key_binds = { "focus/unfocus" : 't',
               "redo" : 'y',
               "brush size -" : 'j',
               "brush size +" : 'k',
-              "hue +/-" : 'b',
-              "saturation +/-" : 'n',
-              "luminance +/-" : 'm',
+              "luminance +/-" : 'b',
+              "chroma +/-" : 'n',
+              "hue +/-" : 'm',
               "eyedropper" : 'e',
               "2nd mode" : 'shift'
              }
@@ -56,18 +57,18 @@ def on_press(key):
         if key == kb.KeyCode.from_char(key_binds["brush size +"]):
             window.update_cheatsheet(7)
             window.update_pen(3)
-        if key == kb.KeyCode.from_char(key_binds["hue +/-"]):
-            window.update_cheatsheet(8)
-            if is_alt_mode: window.update_hsl(-1, 0., 0.)
-            else: window.update_hsl(1, 0., 0.)
-        if key == kb.KeyCode.from_char(key_binds["saturation +/-"]):
-            window.update_cheatsheet(9)
-            if is_alt_mode: window.update_hsl(0, -0.01, 0.)
-            else: window.update_hsl(0, 0.01, 0.)
         if key == kb.KeyCode.from_char(key_binds["luminance +/-"]):
+            window.update_cheatsheet(8)
+            if is_alt_mode: window.update_oklch(-0.01, 0., 0.)
+            else: window.update_oklch(0.01, 0., 0.)
+        if key == kb.KeyCode.from_char(key_binds["chroma +/-"]):
+            window.update_cheatsheet(9)
+            if is_alt_mode: window.update_oklch(0, -0.01, 0.)
+            else: window.update_oklch(0, 0.01, 0.)
+        if key == kb.KeyCode.from_char(key_binds["hue +/-"]):
             window.update_cheatsheet(10)
-            if is_alt_mode: window.update_hsl(0, 0, -0.01)
-            else: window.update_hsl(0, 0, 0.01)
+            if is_alt_mode: window.update_oklch(0, 0, -0.5 * (math.pi / 180))
+            else: window.update_oklch(0, 0, 0.5 * (math.pi / 180))
         if key == kb.KeyCode.from_char(key_binds["eyedropper"]):
             window.update_cheatsheet(11)
             window.eyedrop(controller.position[0], controller.position[1])
