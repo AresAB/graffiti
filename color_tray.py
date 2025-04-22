@@ -7,12 +7,16 @@ class ColorTray:
         self.frame = Frame(self.parent.canvas, borderwidth = 3,
                            relief = RIDGE)
 
-        self.col_display = Label(self.frame, text = "   ",
-                                 bg = self.parent.col)
-        self.col_display.pack(fill = 'both')
-
-        self.rgb = hex_to_rgb(self.parent.col)
+        self.hex = self.parent.col
+        self.rgb = hex_to_rgb(self.hex)
         self.oklch = rgb_to_oklch(self.rgb[0], self.rgb[1], self.rgb[2])
+
+        self.hex_l = Label(self.frame, text = self.hex,
+                           bg = "#242424", fg = "#cccccc")
+        self.hex_l.pack(fill = 'both')
+
+        self.col_display = Label(self.frame, bg = self.parent.col)
+        self.col_display.pack(fill = 'both')
 
         self.lum_l = Label(self.frame, 
                            text = f"Luminance: {int(self.oklch[0] * 100)}%",
@@ -65,10 +69,11 @@ class ColorTray:
 
         self.rgb = oklch_to_rgb(self.oklch[0], self.oklch[1], self.oklch[2])
 
-        hex_code = rgb_to_hex(self.rgb[0], self.rgb[1], self.rgb[2])
-        self.col_display.config(bg = hex_code)
+        self.hex = rgb_to_hex(self.rgb[0], self.rgb[1], self.rgb[2])
+        self.col_display.config(bg = self.hex)
+        self.hex_l.config(text = self.hex)
 
-        return hex_code
+        return self.hex
 
     def set_rgb(self, r, g, b):
         self.rgb = [r, g, b]
@@ -79,10 +84,11 @@ class ColorTray:
         self.chroma_l.config(text = f"Chroma: {int(self.oklch[1] * 100)}%")
         self.hue_l.config(text = f"Hue: {int(self.oklch[2] * (180 / math.pi))} deg")
 
-        hex_code = rgb_to_hex(self.rgb[0], self.rgb[1], self.rgb[2])
-        self.col_display.config(bg = hex_code)
+        self.hex = rgb_to_hex(self.rgb[0], self.rgb[1], self.rgb[2])
+        self.col_display.config(bg = self.hex)
+        self.hex_l.config(text = self.hex)
 
-        return hex_code
+        return self.hex
 
 def hex_to_rgb(hex_code):
     return [int(hex_code[1:3], 16), 
