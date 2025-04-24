@@ -125,6 +125,7 @@ class AppWindow:
         self.history.clear()
         self.imgs.clear()
         self.current_tag = "0"
+        self.hidden = False
 
     def hide(self):
         new_state = "normal" if self.hidden else "hidden"
