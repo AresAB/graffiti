@@ -63,10 +63,102 @@ class AppWindow:
         self.imgs = []
 
 
-    def mainloop(self):
-        self.is_running = True
-        self.inputloop()
-        self.root.mainloop()
+    def clear(self):
+        for item in self.get_drawings():
+            self.canvas.delete(item)
+        self.history.clear()
+        self.imgs.clear()
+        self.current_tag = "0"
+        self.hidden = False
+
+    def destroy(self):
+        self.is_running = False
+
+    def drag_widget(self, abs_x, abs_y):
+        x = abs_x - self.canvas.winfo_rootx()
+        y = abs_y - self.canvas.winfo_rooty()
+        
+        self.canvas.coords(self.selected, x + self.mouse_offset[0],
+                           y + self.mouse_offset[1])
+
+    def eyedrop(self, x, y):
+        img = ImageGrab.grab()
+        r, g, b = img.getpixel((x, y))
+        self.col = self.col_tray.set_rgb(r, g, b)
+        self.canvas.itemconfig(self.hover, outline = self.col)
+
+    def find_widget(self, abs_x, abs_y):
+        x = abs_x - self.canvas.winfo_rootx()
+        y = abs_y - self.canvas.winfo_rooty()
+        self.canvas.tag_raise("ui")
+
+        stack = self.canvas.find_overlapping(x-2, y-2, x+2, y+2)
+        if len(stack) == 0:
+            return "mouse"
+
+        top = stack[-1]
+        top_tags = self.canvas.gettags(top)
+
+        if top_tags[0] == "scr":
+            self.mouse_offset = [self.canvas.coords(top)[0] - x,
+                                 self.canvas.coords(top)[1] - y]
+            self.selected = top
+            return "screen shot"
+        elif top_tags[0] != "ui":
+            return "mouse"
+        elif top_tags[1] == "ct":
+            if self.col_tray.overlapping_canvas(abs_y):
+                return "tray"
+            else:
+                self.mouse_offset = [self.canvas.coords(top)[0] - x,
+                                 self.canvas.coords(top)[1] - y]
+                self.selected = top
+                return ""
+        elif top_tags[1] != "mouse":
+            self.mouse_offset = [self.canvas.coords(top)[0] - x,
+                                 self.canvas.coords(top)[1] - y]
+            self.selected = top
+            return ""
+        else:
+            if len(stack) > 1:
+                top = stack[-2]
+                top_tags = self.canvas.gettags(top)
+                if top_tags[0] == "scr":
+                    self.mouse_offset = [self.canvas.coords(top)[0] - x,
+                                         self.canvas.coords(top)[1] - y]
+                    self.selected = top
+                    return "screen shot"
+            return "mouse"
+
+    def get_drawings(self):
+        self.canvas.tag_raise("ui")
+        items = self.canvas.find_all()
+        return items[:len(items) - len(self.canvas.find_withtag("ui"))]
+
+    def hide(self):
+        new_state = "normal" if self.hidden else "hidden"
+        for item in self.get_drawings():
+            self.canvas.itemconfig(item, state = new_state)
+        self.hidden = not self.hidden
+
+    def hide_ui(self, is_hidden):
+        if is_hidden:
+            self.canvas.itemconfig(self.hover, state = "normal")
+            self.root.attributes("-alpha", 1.)
+        else:
+            self.canvas.itemconfig(self.hover, state = "hidden")
+            self.root.attributes("-alpha", 0.5)
+
+    def init_scrnshot(self, x, y):
+        if self.history:
+            for tag in self.history:
+                for item in self.canvas.find_withtag(tag):
+                    self.canvas.delete(item)
+            self.history.clear()
+
+        self.canvas.itemconfig(self.hover, state = "hidden")
+        self.scrnshot_x = x
+        self.scrnshot_y = y
 
     def inputloop(self):
         if self.is_running:
@@ -74,8 +166,20 @@ class AppWindow:
         else:
             self.root.destroy()
 
-    def destroy(self):
-        self.is_running = False
+    def invert_cheatsheet(self, yes_invert):
+        if yes_invert: 
+            self.cheatsheet.configure(bg = "#ed213c",
+                                      fg = "#242424",
+                                      selectbackground = "#242424")
+        else:
+            self.cheatsheet.configure(bg = "#242424",
+                                      fg = "#cccccc",
+                                      selectbackground = "#ed213c")
+
+    def mainloop(self):
+        self.is_running = True
+        self.inputloop()
+        self.root.mainloop()
 
     def paint(self, abs_x, abs_y):
         if self.history:
@@ -96,13 +200,6 @@ class AppWindow:
     def paint_tray(self, abs_x, abs_y):
         self.col_tray.paint(abs_x, abs_y)
 
-    def preview_draw(self, abs_x, abs_y):
-        x = abs_x - self.canvas.winfo_rootx()
-        y = abs_y - self.canvas.winfo_rooty()
-        self.canvas.coords(self.hover, x - self.rad, y - self.rad,
-                           x + self.rad, y + self.rad,)
-        self.canvas.tag_raise("ui")
-
     def paint_line(self, abs_x, abs_y):
         x = abs_x - self.canvas.winfo_rootx()
         y = abs_y - self.canvas.winfo_rooty()
@@ -114,34 +211,12 @@ class AppWindow:
         self.prev_x = x
         self.prev_y = y
 
-    def get_drawings(self):
+    def preview_draw(self, abs_x, abs_y):
+        x = abs_x - self.canvas.winfo_rootx()
+        y = abs_y - self.canvas.winfo_rooty()
+        self.canvas.coords(self.hover, x - self.rad, y - self.rad,
+                           x + self.rad, y + self.rad,)
         self.canvas.tag_raise("ui")
-        items = self.canvas.find_all()
-        return items[:len(items) - len(self.canvas.find_withtag("ui"))]
-
-    def clear(self):
-        for item in self.get_drawings():
-            self.canvas.delete(item)
-        self.history.clear()
-        self.imgs.clear()
-        self.current_tag = "0"
-        self.hidden = False
-
-    def hide(self):
-        new_state = "normal" if self.hidden else "hidden"
-        for item in self.get_drawings():
-            self.canvas.itemconfig(item, state = new_state)
-        self.hidden = not self.hidden
-
-    def update_tag(self, i):
-        self.current_tag = str(int(self.current_tag) + i)
-
-    def undo(self):
-        if self.current_tag != "0":
-            for item in self.canvas.find_withtag("a" + self.current_tag):
-                self.canvas.itemconfig(item, state = "hidden")
-            self.history.append("a" + self.current_tag)
-            self.update_tag(-1)
 
     def redo(self):
         if self.history: # empty lists return false
@@ -149,26 +224,6 @@ class AppWindow:
                 self.canvas.itemconfig(item, state = "normal")
             del self.history[-1]
             self.update_tag(1)
-
-    def update_pen(self, i):
-        self.rad = min(max(self.rad + i, 3), 30)
-
-        coords = self.canvas.coords(self.hover)
-        coords = [(coords[2] - coords[0]) / 2 + coords[0], 
-                  (coords[3] - coords[1]) / 2 + coords[1]]
-
-        self.preview_draw(coords[0], coords[1])
-
-    def init_scrnshot(self, x, y):
-        if self.history:
-            for tag in self.history:
-                for item in self.canvas.find_withtag(tag):
-                    self.canvas.delete(item)
-            self.history.clear()
-
-        self.canvas.itemconfig(self.hover, state = "hidden")
-        self.scrnshot_x = x
-        self.scrnshot_y = y
 
     def take_scrnshot(self, x, y):
         x2 = x
@@ -181,76 +236,34 @@ class AppWindow:
         self.canvas.create_image((self.scrnshot_x, self.scrnshot_y),
                                  image = tk_img,
                                  anchor = "nw",
-                                 tags = (f"{tk_img}"))
-        self.canvas.tag_raise("mouse")
+                                 tags = ("scr", "a" + self.current_tag))
+        self.canvas.tag_raise("ui")
         self.canvas.itemconfig(self.hover, state = "normal")
 
-    def eyedrop(self, x, y):
-        img = ImageGrab.grab()
-        r, g, b = img.getpixel((x, y))
-        self.col = self.col_tray.set_rgb(r, g, b)
-        self.canvas.itemconfig(self.hover, outline = self.col)
+    def undo(self):
+        if self.current_tag != "0":
+            for item in self.canvas.find_withtag("a" + self.current_tag):
+                self.canvas.itemconfig(item, state = "hidden")
+            self.history.append("a" + self.current_tag)
+            self.update_tag(-1)
 
     def update_cheatsheet(self, i):
         self.cheatsheet.selection_clear(0, END)
         self.cheatsheet.select_set(i + 1)
 
-    def invert_cheatsheet(self, yes_invert):
-        if yes_invert: 
-            self.cheatsheet.configure(bg = "#ed213c",
-                                      fg = "#242424",
-                                      selectbackground = "#242424")
-        else:
-            self.cheatsheet.configure(bg = "#242424",
-                                      fg = "#cccccc",
-                                      selectbackground = "#ed213c")
-
-    def find_widget(self, abs_x, abs_y):
-        x = abs_x - self.canvas.winfo_rootx()
-        y = abs_y - self.canvas.winfo_rooty()
-        self.canvas.tag_raise("ui")
-
-        stack = self.canvas.find_overlapping(x-2, y-2, x+2, y+2)
-        if len(stack) == 0:
-            return "mouse"
-
-        top = stack[-1]
-        top_tags = self.canvas.gettags(top)
-        if top_tags[0] != "ui":
-            return "mouse"
-        
-        if top_tags[1] == "ct":
-            if self.col_tray.overlapping_canvas(abs_y):
-                return "tray"
-            else:
-                self.mouse_offset = [self.canvas.coords(top)[0] - x,
-                                 self.canvas.coords(top)[1] - y]
-                self.selected = top
-                return ""
-        if top_tags[1] != "mouse" and top_tags[0] == "ui":
-            self.mouse_offset = [self.canvas.coords(top)[0] - x,
-                                 self.canvas.coords(top)[1] - y]
-            self.selected = top
-            return ""
-        else:
-            return "mouse"
-
-    def drag_widget(self, abs_x, abs_y):
-        x = abs_x - self.canvas.winfo_rootx()
-        y = abs_y - self.canvas.winfo_rooty()
-        
-        self.canvas.coords(self.selected, x + self.mouse_offset[0],
-                           y + self.mouse_offset[1])
-
-    def hide_ui(self, is_hidden):
-        if is_hidden:
-            self.canvas.itemconfig(self.hover, state = "normal")
-            self.root.attributes("-alpha", 1.)
-        else:
-            self.canvas.itemconfig(self.hover, state = "hidden")
-            self.root.attributes("-alpha", 0.5)
-
     def update_oklch(self, l_i, c_i, h_i):
         self.col = self.col_tray.update_oklch(l_i, c_i, h_i)
         self.canvas.itemconfig(self.hover, outline = self.col)
+
+    def update_pen(self, i):
+        self.rad = min(max(self.rad + i, 3), 30)
+
+        coords = self.canvas.coords(self.hover)
+        coords = [(coords[2] - coords[0]) / 2 + coords[0], 
+                  (coords[3] - coords[1]) / 2 + coords[1]]
+
+        self.preview_draw(coords[0], coords[1])
+
+    def update_tag(self, i):
+        self.current_tag = str(int(self.current_tag) + i)
 

@@ -98,14 +98,21 @@ def on_click(x, y, button, pressed):
                 window.preview_draw(x, y)
             elif top_widget == "tray":
                 window.paint_tray(x, y)
+            elif top_widget == "screen shot" and not is_alt_mode:
+                window.update_tag(1)
+                is_drawing = True
+                window.paint(x, y)
+                window.preview_draw(x, y)
             else:
                 is_dragging = True
+            print(top_widget)
         if button == mouse.Button.right:
             if pressed:
+                window.update_tag(1)
                 window.init_scrnshot(x, y)
             else:
                 window.take_scrnshot(x, y)
-        key_listener.suppress_event() #check if this does smth
+        key_listener.suppress_event() 
     else:
         is_dragging = False
         is_drawing = False
