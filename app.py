@@ -56,6 +56,7 @@ def win32_event_filter(msg, data):
                 mouse_listener.stop()
                 window.destroy()
                 key_listener.stop()
+                quit()
             if key == key_binds["clear"]:
                 window.update_cheatsheet(3)
                 window.clear()
