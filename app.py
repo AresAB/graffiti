@@ -5,9 +5,9 @@ import math
 import win32api
 
 key_binds = { "focus/unfocus" : 't',
+              "hide/unhide" : 's',
               "quit" : 'q',
               "clear": 'c',
-              "hide/unhide" : 's',
               "undo" : 'u',
               "redo" : 'y',
               "brush size -" : 'j',
@@ -22,11 +22,12 @@ key_binds = { "focus/unfocus" : 't',
 is_drawing = False
 is_dragging = False
 is_focused = True
+is_hidden = False
 is_alt_mode = False
 is_pressed = False
 
 def win32_event_filter(msg, data):
-    global is_focused, is_alt_mode, is_pressed
+    global is_focused, is_hidden, is_alt_mode, is_pressed
     is_pressed = not is_pressed
 
     scan_code = win32api.MapVirtualKey(data.vkCode, 1)
@@ -36,24 +37,28 @@ def win32_event_filter(msg, data):
         if key == key_binds["focus/unfocus"]:
             window.update_cheatsheet(0)
             is_focused = not is_focused
+            is_hidden = False
             window.hide_ui(is_focused)
             key_listener.suppress_event()
-        if is_focused:
+        if key == key_binds["hide/unhide"]:
+            window.update_cheatsheet(1)
+            is_hidden = not is_hidden
+            is_focused = True
+            window.hide_window(is_hidden)
+            key_listener.suppress_event()
+        if is_focused and not is_hidden:
             if data.vkCode == 160: # shift
                 window.update_cheatsheet(12)
                 is_alt_mode = not is_alt_mode
                 window.invert_cheatsheet(is_alt_mode)
             if key == key_binds["quit"]:
-                window.update_cheatsheet(1)
+                window.update_cheatsheet(2)
                 mouse_listener.stop()
                 window.destroy()
                 key_listener.stop()
             if key == key_binds["clear"]:
-                window.update_cheatsheet(2)
-                window.clear()
-            if key == key_binds["hide/unhide"]:
                 window.update_cheatsheet(3)
-                window.hide()
+                window.clear()
             if key == key_binds["undo"]:
                 window.update_cheatsheet(4)
                 window.undo()
@@ -85,7 +90,7 @@ def win32_event_filter(msg, data):
 
 def on_click(x, y, button, pressed):
     global is_drawing, is_dragging
-    if is_focused:
+    if is_focused and not is_hidden:
         if button == mouse.Button.left:
             top_widget = window.find_widget(x, y)
             if not pressed:
@@ -105,7 +110,6 @@ def on_click(x, y, button, pressed):
                 window.preview_draw(x, y)
             else:
                 is_dragging = True
-            print(top_widget)
         if button == mouse.Button.right:
             if pressed:
                 window.update_tag(1)
@@ -123,8 +127,8 @@ def on_move(x, y):
     window.preview_draw(x, y)
 
 def on_scroll(x, y, dx, dy):
-    global is_focused
-    if dy != 0 and is_focused: window.update_pen(dy / abs(dy))
+    if dy != 0 and is_focused and not is_hidden: 
+        window.update_pen(dy / abs(dy))
 
 window = AppWindow(key_binds)
 controller = mouse.Controller()

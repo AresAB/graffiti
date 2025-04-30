@@ -149,6 +149,12 @@ class AppWindow:
             self.canvas.itemconfig(self.hover, state = "hidden")
             self.root.attributes("-alpha", 0.5)
 
+    def hide_window(self, hide):
+        if hide:
+            self.root.attributes("-alpha", 0.)
+        else:
+            self.root.attributes("-alpha", 1.)
+
     def init_scrnshot(self, x, y):
         if self.history:
             for tag in self.history:
