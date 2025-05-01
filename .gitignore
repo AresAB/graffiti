@@ -1,5 +1,4 @@
 tkinter_testing/
 __pycache__/
 build/
-dist/
 app.spec
