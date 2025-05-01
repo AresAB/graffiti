@@ -5,17 +5,15 @@ import math
 import win32api
 import sys
 
-key_binds = { "focus/unfocus" : 't',
-              "hide/unhide" : 's',
-              "quit" : 'q',
+key_binds = { "focus/unfocus" : 's',
+              "hide/unhide" : 'q',
+              "quit" : 'x',
               "clear": 'c',
-              "undo" : 'u',
-              "redo" : 'y',
-              "brush size -" : 'j',
-              "brush size +" : 'k',
-              "luminance +/-" : 'b',
-              "chroma +/-" : 'n',
-              "hue +/-" : 'm',
+              "undo/redo" : 'z',
+              "brush size +/-" : 'f',
+              "luminance +/-" : 'a',
+              "chroma +/-" : 'd',
+              "hue +/-" : 'w',
               "eyedropper" : 'e',
               "2nd mode" : 'shift'
              }
@@ -52,10 +50,6 @@ def win32_event_filter(msg, data):
             is_focused = True
             window.hide_window(is_hidden)
             key_listener.suppress_event()
-        if data.vkCode == 160: # shift
-            window.update_cheatsheet(12)
-            is_alt_mode = not is_alt_mode
-            window.invert_cheatsheet(is_alt_mode)
         if key == key_binds["quit"]:
             window.update_cheatsheet(2)
             mouse_listener.stop()
@@ -65,33 +59,34 @@ def win32_event_filter(msg, data):
         if key == key_binds["clear"]:
             window.update_cheatsheet(3)
             window.clear()
-        if key == key_binds["undo"]:
+        if key == key_binds["undo/redo"]:
             window.update_cheatsheet(4)
-            window.undo()
-        if key == key_binds["redo"]:
+            if is_alt_mode: window.redo()
+            else: window.undo()
+        if key == key_binds["brush size +/-"]:
             window.update_cheatsheet(5)
-            window.redo()
-        if key == key_binds["brush size -"]:
-            window.update_cheatsheet(6)
-            window.update_pen(-3)
-        if key == key_binds["brush size +"]:
-            window.update_cheatsheet(7)
-            window.update_pen(3)
+            if is_alt_mode: window.update_pen(-3)
+            else: window.update_pen(3)
         if key == key_binds["luminance +/-"]:
-            window.update_cheatsheet(8)
-            if is_alt_mode: window.update_oklch(-0.01, 0., 0.)
-            else: window.update_oklch(0.01, 0., 0.)
+            window.update_cheatsheet(6)
+            if is_alt_mode: window.update_oklch(-0.05, 0., 0.)
+            else: window.update_oklch(0.05, 0., 0.)
         if key == key_binds["chroma +/-"]:
-            window.update_cheatsheet(9)
-            if is_alt_mode: window.update_oklch(0, -0.01, 0.)
-            else: window.update_oklch(0, 0.01, 0.)
+            window.update_cheatsheet(7)
+            if is_alt_mode: window.update_oklch(0, -0.05, 0.)
+            else: window.update_oklch(0, 0.05, 0.)
         if key == key_binds["hue +/-"]:
-            window.update_cheatsheet(10)
-            if is_alt_mode: window.update_oklch(0, 0, -1 * (math.pi / 180))
-            else: window.update_oklch(0, 0, 1 * (math.pi / 180))
+            window.update_cheatsheet(8)
+            if is_alt_mode: window.update_oklch(0, 0, -10 * (math.pi / 180))
+            else: window.update_oklch(0, 0, 10 * (math.pi / 180))
         if key == key_binds["eyedropper"]:
-            window.update_cheatsheet(11)
+            window.update_cheatsheet(9)
             window.eyedrop(controller.position[0], controller.position[1])
+        if data.vkCode == 160: # shift
+            window.update_cheatsheet(10)
+            is_alt_mode = not is_alt_mode
+            window.invert_cheatsheet(is_alt_mode)
+
         key_listener.suppress_event()
 
 def on_click(x, y, button, pressed):
