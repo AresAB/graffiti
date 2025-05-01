@@ -3,6 +3,7 @@ from pynput import mouse
 from app_window import AppWindow
 import math
 import win32api
+import sys
 
 key_binds = { "focus/unfocus" : 't',
               "hide/unhide" : 's',
@@ -60,7 +61,7 @@ def win32_event_filter(msg, data):
             mouse_listener.stop()
             window.destroy()
             key_listener.stop()
-            quit()
+            sys.exit(0)
         if key == key_binds["clear"]:
             window.update_cheatsheet(3)
             window.clear()
@@ -103,9 +104,10 @@ def on_click(x, y, button, pressed):
                 is_dragging = False
             elif top_widget == "mouse":
                 window.update_tag(1)
-                is_drawing = True
-                window.paint(x, y)
-                window.preview_draw(x, y)
+                if not is_alt_mode:
+                    is_drawing = True
+                    window.paint(x, y)
+                    window.preview_draw(x, y)
             elif top_widget == "tray":
                 window.paint_tray(x, y)
             elif top_widget == "screen shot" and not is_alt_mode:

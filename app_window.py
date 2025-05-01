@@ -37,7 +37,7 @@ class AppWindow:
                                              outline = self.col,
                                              tags = ("ui", "mouse"))
 
-        self.cheatsheet = Listbox(self.canvas, height = len(key_binds) + 2,
+        self.cheatsheet = Listbox(self.canvas, height = len(key_binds) + 5,
                                   borderwidth = 3, relief = RIDGE,
                                   bg = "#242424", fg = "#cccccc",
                                   selectbackground = "#ed213c")
@@ -57,7 +57,7 @@ class AppWindow:
 
         self.col_tray = ColorTray(self)
         self.canvas.create_window(self.root.winfo_screenwidth() - 40,
-                                  60 + 20 * len(key_binds), 
+                                  100 + 20 * len(key_binds), 
                                   window = self.col_tray.get_widget(),
                                   anchor = "ne", tags = ("ui", "ct"))
 
