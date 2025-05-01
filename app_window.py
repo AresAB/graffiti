@@ -42,6 +42,9 @@ class AppWindow:
                                   bg = "#242424", fg = "#cccccc",
                                   selectbackground = "#ed213c")
         self.cheatsheet.insert(1, "")
+        self.cheatsheet.insert(2, "   Use CTRL to interact")
+        self.cheatsheet.insert(3, "   when not focused")
+        self.cheatsheet.insert(4, "")
         for key in key_binds:
             self.cheatsheet.insert(END, f"   {key_binds[key]} : {key}")
 
@@ -255,7 +258,7 @@ class AppWindow:
 
     def update_cheatsheet(self, i):
         self.cheatsheet.selection_clear(0, END)
-        self.cheatsheet.select_set(i + 1)
+        self.cheatsheet.select_set(i + 4)
 
     def update_oklch(self, l_i, c_i, h_i):
         self.col = self.col_tray.update_oklch(l_i, c_i, h_i)
