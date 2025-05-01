@@ -169,6 +169,14 @@ class AppWindow:
         self.scrnshot_x = x
         self.scrnshot_y = y
 
+        scrn_x = x - self.canvas.winfo_rootx()
+        scrn_y = y - self.canvas.winfo_rooty()
+
+        self.canvas.create_rectangle(scrn_x, scrn_y, scrn_x + 1, scrn_y + 1,
+                                   fill = "#add123",
+                                   outline = "#344ceb",
+                                   tags = ("drag"))
+
     def inputloop(self):
         if self.is_running:
             self.root.after(10, self.inputloop)
@@ -235,6 +243,7 @@ class AppWindow:
             self.update_tag(1)
 
     def take_scrnshot(self, x, y):
+        self.canvas.delete(self.canvas.find_withtag("drag")[0])
         x2 = x
         y2 = y
         if self.scrnshot_x > x2: (self.scrnshot_x, x2) = (x2, self.scrnshot_x)
@@ -259,6 +268,16 @@ class AppWindow:
     def update_cheatsheet(self, i):
         self.cheatsheet.selection_clear(0, END)
         self.cheatsheet.select_set(i + 4)
+
+    def update_drag(self, abs_x, abs_y):
+        x = self.scrnshot_x - self.canvas.winfo_rootx()
+        y = self.scrnshot_y - self.canvas.winfo_rooty()
+        x2 = abs_x - self.canvas.winfo_rootx()
+        y2 = abs_y - self.canvas.winfo_rooty()
+        if x > x2: (x, x2) = (x2, x)
+        if y > y2: (y, y2) = (y2, y)
+        self.canvas.coords(self.canvas.find_withtag("drag")[0],
+                           x, y, x2, y2)
 
     def update_oklch(self, l_i, c_i, h_i):
         self.col = self.col_tray.update_oklch(l_i, c_i, h_i)

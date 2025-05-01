@@ -21,6 +21,7 @@ key_binds = { "focus/unfocus" : 't',
 
 is_drawing = False
 is_dragging = False
+is_scrn_shotting = False
 is_focused = True
 is_hidden = False
 is_alt_mode = False
@@ -93,7 +94,7 @@ def win32_event_filter(msg, data):
         key_listener.suppress_event()
 
 def on_click(x, y, button, pressed):
-    global is_drawing, is_dragging
+    global is_drawing, is_dragging, is_scrn_shotting
     if is_focused and not is_hidden:
         if button == mouse.Button.left:
             top_widget = window.find_widget(x, y)
@@ -117,8 +118,10 @@ def on_click(x, y, button, pressed):
         if button == mouse.Button.right:
             if pressed:
                 window.update_tag(1)
+                is_scrn_shotting = True
                 window.init_scrnshot(x, y)
             else:
+                is_scrn_shotting = False
                 window.take_scrnshot(x, y)
         key_listener.suppress_event() 
     else:
@@ -128,6 +131,7 @@ def on_click(x, y, button, pressed):
 def on_move(x, y):
     if is_drawing: window.paint_line(x, y)
     if is_dragging: window.drag_widget(x, y)
+    if is_scrn_shotting: window.update_drag(x, y)
     window.preview_draw(x, y)
 
 def on_scroll(x, y, dx, dy):
